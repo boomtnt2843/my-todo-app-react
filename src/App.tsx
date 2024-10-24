@@ -6,6 +6,7 @@ import TodoForm from "./Form";
 
 function App() {
   const [todos, setTodos] = useState<Todo[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const getTodosData = async () => {
     try {
@@ -47,13 +48,16 @@ function App() {
     const form = event.currentTarget;
     const formElements = form.elements as typeof form.elements & {
       task: {value: string}
-    }
-    
-    await createTask(formElements.task.value);
-    
-    form.reset(); 
+    };
 
-    await getTodosData();
+    if (!formElements.task.value.trim()) {
+      setError('❌ please enter a todo before submitting.')
+    } else {
+      setError(null);
+      await createTask(formElements.task.value);
+      form.reset();
+      await getTodosData();
+    }
   };
 
   useEffect(() => {
@@ -63,7 +67,7 @@ function App() {
   return (
     <div className="App">
       <h1>TODOS</h1>
-      <TodoForm onSubmit={onSubmit} />
+      <TodoForm onSubmit={onSubmit} error={error} />
       <TodoList todos={todos} />
     </div>
   );
